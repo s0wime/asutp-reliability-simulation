@@ -8,8 +8,8 @@ import java.util.Locale;
 
 /** Експериментальне дослідження моделі (розділ 4). */
 public class Experiment {
-    static final double T_WARM = 15_000;  // T_пер, с
-    static final double T_MOD = 30_000;   // T_мод, с
+    static final double T_WARM = 50_000;  // T_пер, с
+    static final double T_MOD = 100_000;  // T_мод, с
     static final int P = 80;              // кількість замірів
     static final int P_LAW = 200;         // для закону розподілу
     static final double[] TC = {10, 20, 30, 40, 50};  // T_с, с
@@ -69,7 +69,7 @@ public class Experiment {
             throws IOException {
         int seeds = 5;
         double step = 250;
-        double tEnd = 30_000;
+        double tEnd = 60_000;
         double tStar = step;
         try (PrintStream csv = new PrintStream(
                 dir + "/transient.csv", StandardCharsets.UTF_8)) {

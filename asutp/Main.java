@@ -22,7 +22,7 @@ public class Main {
         try (PrintStream out = new PrintStream(file,
                 StandardCharsets.UTF_8)) {
             out.println("       t  подія"
-                    + "                          K1-K5 C гальм"
+                    + "                          K1-K6 C гальм"
                     + " Nнадх Nп Nв        t0");
             Model m = new Model(Params.base(), SEED);
             m.setTrace(out, 0, 480);

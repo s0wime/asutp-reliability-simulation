@@ -18,7 +18,12 @@ public class Stats {
         if (!c && !braked) {          // початок періоду
             braked = true;
             tStart = t;
-        } else if (c && braked) {     // кінець періоду
+        }
+    }
+
+    /** Резерв підключено: кінець періоду (правило 4). */
+    void onConnected(double t) {
+        if (braked) {
             braked = false;
             tSum += t - tStart;
             nZ++;

@@ -8,13 +8,12 @@ public class Model {
     private final Params p;
     private final FunRand rand;
     final Arrival arrival;
-    final Device d1, d2, d3, d4, d5;
+    final Device d1, d2, d3, d4, d5, d6;
     private final List<Device> devices;
     final Stats stats = new Stats();
 
     double t = 0;        // поточний момент часу
     boolean c = true;    // ознака C (формула 2.2)
-    double tD = Double.NEGATIVE_INFINITY; // t_д
 
     private PrintStream trace;   // протокол подій
     private double traceFrom, traceTo;
@@ -29,8 +28,9 @@ public class Model {
                 s -> rand.unif(p.dV(), p.sV()));
         d4 = new Device("D4",
                 s -> p.tC() * Math.ceil(s / p.tC()) - s);
-        d5 = new Device("D5", s -> p.tVidn());
-        devices = List.of(d1, d2, d3, d4, d5);
+        d5 = new Device("D5", s -> p.tVidn() - p.tP());
+        d6 = new Device("D6", s -> p.tP());
+        devices = List.of(d1, d2, d3, d4, d5, d6);
     }
 
     public void setTrace(PrintStream out, double from,
@@ -42,9 +42,7 @@ public class Model {
 
     // Блокування (2.1): true -- маршрут заблоковано
     boolean b1() { return !d3.busy(); }      // L_3 = 0
-    boolean b2() {
-        return !d5.busy() || t - tD < p.tP();
-    }
+    boolean b2() { return !d5.busy(); }      // L_5 = 0
     boolean b3() { return !(b1() && b2()); }
     boolean b4() { return !d3.busy(); }      // L_3 = 0
     boolean b5() { return d3.busy(); }       // L_3 = 1
@@ -71,7 +69,7 @@ public class Model {
         return stats;
     }
 
-    /** Спочатку завершення в D1...D5, потім надходження. */
+    /** Спочатку завершення в D1...D6, потім надходження. */
     private void changeState() {
         for (Device d : devices) {
             if (d.tNext == t) {
@@ -98,9 +96,13 @@ public class Model {
             d4.start(t);
             log("D3 -> D4: відмова");
         } else if (d == d4) {
-            tD = t;
+            d6.start(t);
+            log("D4 -> D6: виявлення");
+        } else if (d == d6) {
+            c = true;                 // нормальний темп
+            stats.onConnected(t);
             d5.start(t);
-            log("D4 -> D5: виявлення");
+            log("D6 -> D5: резерв підключено");
         } else {
             d3.start(t);
             log("D5 -> D3: відновлення");
@@ -135,7 +137,9 @@ public class Model {
 
     private void exitLost(String what) {
         stats.nP++;
-        c = false;
+        if (b2()) {          // резерв ще не підключено
+            c = false;
+        }
         log(what);
     }
 
@@ -143,9 +147,9 @@ public class Model {
         if (trace == null || t < traceFrom || t > traceTo) {
             return;
         }
-        trace.printf("%8.3f  %-30s %d%d%d%d%d  %d  %d"
+        trace.printf("%8.3f  %-30s %d%d%d%d%d%d  %d  %d"
                         + "  %3d  %2d  %2d  %8s%n",
-                t, event, d1.k, d2.k, d3.k, d4.k, d5.k,
+                t, event, d1.k, d2.k, d3.k, d4.k, d5.k, d6.k,
                 c ? 1 : 0, stats.braked ? 1 : 0,
                 stats.nNadh, stats.nP, stats.nV,
                 fmt(arrival.tNext));

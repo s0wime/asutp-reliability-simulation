@@ -13,8 +13,8 @@ public class Proposals {
     static final String[] CH = {"Tz", "Np", "kz", "pp", "Nv"};
     // рівняння регресії (4.7): b0, b1, b2, b12
     static final double[][] B = {
-        {38.0706, 10.4077, 4.1610, -0.6204},
-        {1.8632, 0.5437, 0.2633, -0.0660}};
+        {11.5763, 8.9366, 2.0715, 0.5861},
+        {1.8619, 0.5406, 0.2702, -0.0657}};
 
     public static void main(String[] args) throws IOException {
         Locale.setDefault(Locale.ROOT);
@@ -43,9 +43,9 @@ public class Proposals {
                 }
             }
         }
-        System.out.println("Пропозиції: " + p + " замірів, "
-                + "T_пер = 15000 с, T_мод = 30000 с -> "
-                + dir + "/proposals.csv");
+        System.out.printf("Пропозиції: %d замірів, T_пер = %.0f с,"
+                + " T_мод = %.0f с -> %s/proposals.csv%n", p,
+                Experiment.T_WARM, Experiment.T_MOD, dir);
     }
 
     /** Рядок: середнє, зміна відносно бази та її точність. */
